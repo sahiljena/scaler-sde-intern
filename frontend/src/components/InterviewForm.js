@@ -1,0 +1,181 @@
+import { useState } from "react";
+import Participants from "./Partcipants";
+import Spinner from "./Spinner";
+const InterviewForm = ({ className, participants }) => {
+  const [addedParticipants, setAddedParticipants] = useState([]);
+  const [startDateTime, setStartDateTime] = useState(null);
+  const [endDateTime, setEndDateTime] = useState(null);
+  const [title, setTitle] = useState("");
+  const [link, setLink] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState({ type: null, message: null });
+
+  const getTimeDifference = (start, end) => {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const diff = endDate.getTime() - startDate.getTime();
+    const diffInMinutes = Math.floor(diff / (1000 * 60));
+    return diffInMinutes;
+  };
+
+  const handleNewInterview = () => {
+    setLoading(true);
+    var myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+
+    var raw = JSON.stringify({
+      title: title,
+      startTime: startDateTime,
+      endTime: endDateTime,
+      link: link,
+      participants: addedParticipants,
+    });
+
+    var requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow",
+    };
+
+    fetch(`${process.env.REACT_APP_BACKEND}/api/interview/new`, requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        setLoading(false);
+        alert("Interview Created");
+        setResult({ type: "success", message: result.message });
+      })
+      .catch((error) => {
+        setLoading(true);
+        console.log("error", error);
+      });
+  };
+
+  // const searchParticipants = (participants, searchTerm) => {
+  //   const filteredParticipants = participants.filter(
+  //     (participant) =>
+  //       participant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //       participant.email.toLowerCase().includes(searchTerm.toLowerCase())
+  //   );
+  //   return filteredParticipants;
+  // };
+
+  // const participants = [
+  //   { name: "John Smith", email: "john@example.com" },
+  //   { name: "Jane Doe", email: "jane@example.com" },
+  //   { name: "Bob Johnson", email: "bob@example.com" },
+  // ];
+
+  return (
+    <form className={className}>
+      <div className="mb-6">
+        <label
+          htmlFor="text"
+          className="block mb-2 text-md font-medium text-gray-900"
+        >
+          Interview Title
+        </label>
+        <input
+          type="text"
+          id="interview-title"
+          className="bg-gray-50 border border-gray-400 text-gray-900 text-md rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
+          placeholder="Full Stack Developer - Round 1"
+          onChange={(e) => setTitle(e.target.value)}
+          value={title}
+          required
+        />
+      </div>
+      <div className="flex gap-2">
+        <div className="w-full">
+          <label
+            htmlFor="text"
+            className="block mb-2 text-md font-medium text-gray-900"
+          >
+            Start Time
+          </label>
+          <input
+            className="bg-gray-50 border border-gray-400 text-gray-900 text-md rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
+            type="datetime-local"
+            id="start-time"
+            name="start-time"
+            onChange={(e) => setStartDateTime(e.target.value)}
+            value={startDateTime}
+          />
+        </div>
+        <div className="w-full">
+          <label
+            htmlFor="text"
+            className="block mb-2 text-md font-medium text-gray-900"
+          >
+            End Time
+          </label>
+          <input
+            className="bg-gray-50 border border-gray-400 text-gray-900 text-md rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
+            type="datetime-local"
+            id="end-time"
+            name="end-time"
+            onChange={(e) => setEndDateTime(e.target.value)}
+            value={endDateTime}
+          />
+        </div>
+      </div>
+      {startDateTime && endDateTime && (
+        <div>
+          <p className="mb-2 text-xs font-medium text-blue-800 p-0.5">
+            Interview Duration{" "}
+            <span>{getTimeDifference(startDateTime, endDateTime)} Minutes</span>
+          </p>
+        </div>
+      )}
+      <div className="mb-6 mt-2">
+        <label
+          htmlFor="text"
+          className="block mb-2 text-md font-medium text-gray-900"
+        >
+          Link
+        </label>
+        <input
+          type="text"
+          id="interview-title"
+          className="bg-gray-50 border border-gray-400 text-gray-900 text-md rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
+          placeholder="Add a meeting link, any relevent link..."
+          onChange={(e) => setLink(e.target.value)}
+          value={link}
+          required
+        />
+      </div>
+      <div className="mt-6">
+        <p className="text-md font-medium text-gray-900">Add Particpants</p>
+        {/* <input
+          type="search"
+          id="default-search"
+          className="block w-full p-2.5  text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 "
+          placeholder="Search by Name, Email"
+          required
+        /> */}
+        <Participants
+          participants={participants}
+          setAddedParticipants={setAddedParticipants}
+          addedParticipants={addedParticipants}
+        />
+      </div>
+      <div className="mt-6 flex gap-2">
+        <button
+          onClick={() => handleNewInterview()}
+          type="button"
+          className="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        >
+          {loading ? <Spinner /> : "Create"}
+        </button>
+        <button
+          type="button"
+          className="text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
+        >
+          Reset
+        </button>
+      </div>
+    </form>
+  );
+};
+
+export default InterviewForm;
