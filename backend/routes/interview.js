@@ -41,7 +41,11 @@ const sendMassMail = async (subject, context, participants) => {
 function validateTime(start, end) {
   const startDate = new Date(start);
   const endDate = new Date(end);
-  if (startDate.getTime() > endDate.getTime()) {
+  let todayDateTime = new Date();
+  if (
+    startDate.getTime() > endDate.getTime() ||
+    startDate.getTime() < todayDateTime.getTime()
+  ) {
     return false;
   }
   return true;

@@ -10,6 +10,7 @@ const InterviewForm = ({
   updateInterview,
 }) => {
   let particpantToUpdate = [];
+
   if (interview) {
     for (var i = 0; i < interview.participants.length; i++) {
       particpantToUpdate.push(interview.participants[i]._id);
@@ -39,6 +40,15 @@ const InterviewForm = ({
       setResult({
         type: "error",
         message: "Interview Duration is greater than 6 hours",
+      });
+      return;
+    }
+    let todayDateTime = new Date();
+    let startDateTimeTc = new Date(startDateTime);
+    if (startDateTimeTc < todayDateTime) {
+      setResult({
+        type: "error",
+        message: "You can not schedule interviews in the past.",
       });
       return;
     }
