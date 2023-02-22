@@ -226,6 +226,14 @@ router.put("/update/:id", async (req, res) => {
               req.body,
               function (err, doc) {
                 if (err) return res.send(500, { error: err });
+                sendMassMail(
+                  "Interview Schedule Update",
+                  "An Interview Schedule has been updated for you from " +
+                    req.body.startTime +
+                    " to " +
+                    req.body.endTime,
+                  req.body.participants
+                );
                 return res
                   .status(202)
                   .json({ success: true, message: "UPDATED" });
@@ -278,6 +286,14 @@ router.put("/update/:id", async (req, res) => {
                 req.body,
                 function (err, doc) {
                   if (err) return res.send(500, { error: err });
+                  sendMassMail(
+                    "Interview Schedule Update",
+                    "An Interview Schedule has been updated for you from " +
+                      req.body.startTime +
+                      " to " +
+                      req.body.endTime,
+                    req.body.participants
+                  );
                   return res
                     .status(202)
                     .json({ success: true, message: "UPDATED" });
