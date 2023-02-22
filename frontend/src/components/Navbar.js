@@ -25,7 +25,7 @@ const Navbar = () => {
           data-drawer-toggle="default-sidebar"
           aria-controls="default-sidebar"
           type="button"
-          className="inline-flex items-center p-2 mt-5 mr-20- text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 absolute -translate-y-1/2 translate-x-12 left-auto top-3 right-0 bg-gray-800"
+          className="inline-flex items-center p-2 mt-5 mr-20- text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 absolute -translate-y-1/2 translate-x-12 left-auto top-3 right-0 bg-gray-100"
         >
           {!open ? (
             <MdClose className="text-2xl" />

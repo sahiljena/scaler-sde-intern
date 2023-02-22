@@ -14,9 +14,9 @@ const Participants = ({
     }
   };
   return (
-    <>
-      <ul className="max-w-3xl m-auto divide-y divide-gray-200 p-2">
-        {!participants && <Spinner />}
+    <div className="overflow-auto h-80">
+      <ul className="max-w-3xl m-auto divide-y divide-gray-200 p-2 ">
+        {participants.length === 0 && <>Loading...</>}
         {participants?.map((particpant) => {
           let isChecked =
             addedParticipants.indexOf(particpant._id) === -1 ? false : true;
@@ -52,7 +52,7 @@ const Participants = ({
           );
         })}
       </ul>
-    </>
+    </div>
   );
 };
 

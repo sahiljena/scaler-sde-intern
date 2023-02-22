@@ -228,12 +228,26 @@ router.put("/update/:id", async (req, res) => {
                 }
               }
             }
-            console.log(unavalibleParticipants);
-            res.status(400).json({
-              success: false,
-              message: "CLASH",
-              unAvalibleParticipants: unavalibleParticipants,
-            });
+
+            if (unavalibleParticipants.length === 0) {
+              const interview = Interview.findOneAndUpdate(
+                { _id: iid },
+                req.body,
+                function (err, doc) {
+                  if (err) return res.send(500, { error: err });
+                  return res
+                    .status(202)
+                    .json({ success: true, message: "UPDATED" });
+                }
+              );
+            } else {
+              console.log(unavalibleParticipants);
+              res.status(400).json({
+                success: false,
+                message: "CLASH",
+                unAvalibleParticipants: unavalibleParticipants,
+              });
+            }
           }
         }
       }

@@ -76,7 +76,7 @@ const InterviewForm = ({
           }
           setResult({
             type: "error",
-            message: "not availible",
+            message: "Not Available",
             unAvlParticipants: result?.unAvalibleParticipants,
           });
           return;
@@ -98,21 +98,6 @@ const InterviewForm = ({
       });
   };
 
-  // const searchParticipants = (participants, searchTerm) => {
-  //   const filteredParticipants = participants.filter(
-  //     (participant) =>
-  //       participant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //       participant.email.toLowerCase().includes(searchTerm.toLowerCase())
-  //   );
-  //   return filteredParticipants;
-  // };
-
-  // const participants = [
-  //   { name: "John Smith", email: "john@example.com" },
-  //   { name: "Jane Doe", email: "jane@example.com" },
-  //   { name: "Bob Johnson", email: "bob@example.com" },
-  // ];
-
   return (
     <form className={className}>
       {result && (
@@ -125,7 +110,7 @@ const InterviewForm = ({
           {result.type === "error" && (
             <div className="text-white bg-red-600 p-2 rounded-xl font-bold">
               {result.message}
-              {result.unAvlParticipants.map((pt) => {
+              {result?.unAvlParticipants?.map((pt) => {
                 return (
                   <li>
                     {pt.name} - {pt.startTime} - {pt.endTime}
