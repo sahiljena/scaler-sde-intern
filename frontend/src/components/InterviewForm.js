@@ -74,7 +74,11 @@ const InterviewForm = ({
           for (var i = 0; i < result?.unAvalibleParticipants.length; i++) {
             message += `${result?.unAvalibleParticipants[i]?.name} - (${result?.unAvalibleParticipants[i]?.startTime}-${result?.unAvalibleParticipants[i]?.endTime})   `;
           }
-          setResult({ type: "error", message: message + " not availible" });
+          setResult({
+            type: "error",
+            message: "not availible",
+            unAvlParticipants: result?.unAvalibleParticipants,
+          });
           return;
         } else if (
           !result?.success &&
@@ -121,6 +125,13 @@ const InterviewForm = ({
           {result.type === "error" && (
             <div className="text-white bg-red-600 p-2 rounded-xl font-bold">
               {result.message}
+              {result.unAvlParticipants.map((pt) => {
+                return (
+                  <li>
+                    {pt.name} - {pt.startTime} - {pt.endTime}
+                  </li>
+                );
+              })}
             </div>
           )}
         </>
@@ -223,12 +234,6 @@ const InterviewForm = ({
           className="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
           {loading ? <Spinner /> : updateInterview ? "Update" : "Create"}
-        </button>
-        <button
-          type="button"
-          className="text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
-        >
-          Reset
         </button>
       </div>
     </form>
