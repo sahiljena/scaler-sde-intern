@@ -1,4 +1,6 @@
-# scaler-sde-intern
+# Interview Scheduler
+
+This app allows admins to create interviews by selecting participants, interview start time, and end time.
 
 ## 🛠️ Tech Stack
 - React.js for Frontend
@@ -6,15 +8,48 @@
 - MonogDB for Database
 - Tailwind CSS for frontend UI
 - React-Icons
-## Frontend
 
+## Installing and Running
+
+#### Git Clone
+``` 
+git clone https://github.com/sahiljena/scaler-sde-intern.git
+```
+#### Starting the frontend
+
+```
+cd frontend
+npm start
+```
+
+
+#### Starting the backend
+
+```
+cd backend
+node index
+```
+## Frontend
+📂 Frontend Organization
+------------
+    ├── package.json        <- Containing the required node modules start up scripts etc
+    ├── postcss.config.js   <- Tailwind css file
+    ├── tailwind.config.js  <- Tailwind css file
+    ├── .env                <- Environment Variables (Backend Connection String etc)
+    ├── public             
+    └── src
+        ├── App.js          <- React App 
+        ├── index.js        <- React App startup 
+        ├── Layout.js       <- Navigation Structure 
+        ├── pages           <- Folder for pages
+        └── components      <- Folder for react components
 
 ## Backend
 📂 Backend Organization
 ------------
 
     ├── node_modules       <- Folder containg node modules 
-    ├── .env               <- MongoDB connection string
+    ├── .env               <- Environment Variables MongoDB connection string
     ├── app.js             <- Main Express app containing all the api routes
     ├── index.js           <- startup js file intializing the app and the port
     ├── package.json       <- Containing the required node modules start up scripts etc
