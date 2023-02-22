@@ -13,4 +13,30 @@ router.get("/all", async (req, res) => {
   }
 });
 
+router.post("/new", async (req, res) => {
+  const participant = new Participant({
+    name: req.body.name,
+    email: req.body.email,
+  });
+
+  try {
+    participant
+      .save()
+      .then(() => {
+        res.status(201).json({
+          // return status to success
+          success: true,
+          message: "CREATED",
+        });
+      })
+      .catch((error) => {
+        res.status(400).json({ success: false, message: error }); // return for unsuccess full
+      });
+  } catch (error) {
+    res
+      .status(400)
+      .json({ success: false, message: "PARTICIPANT_CREATION_FAILED" }); // return for unsuccess full
+  }
+});
+
 module.exports = router;
