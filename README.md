@@ -1,6 +1,11 @@
 # scaler-sde-intern
 
-
+## 🛠️ Tech Stack
+- React.js for Frontend
+- Node.js and Express.js for Backend
+- MonogDB for Database
+- Tailwind CSS for frontend UI
+- React-Icons
 ## Frontend
 
 
