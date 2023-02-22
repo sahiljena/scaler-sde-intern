@@ -36,6 +36,9 @@ const Navbar = () => {
         }`}
         aria-label="Sidebar"
       >
+        <button className="hidden sm:visible mt-6 text-lg font-medium bg-red-600 text-white text-center p-2 leading-none rounded-full  absolute -translate-y-1/2 translate-x-1/2 left-auto top-0 right-0">
+          X
+        </button>
         <div className="h-full px-3 py-4 overflow-y-auto bg-blue-900">
           <ul className="space-y-2">
             <li>

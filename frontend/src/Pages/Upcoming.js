@@ -1,27 +1,54 @@
 import { useState } from "react";
-import Spinner from "../components/Spinner";
+import UpdateInterview from "../components/UpdateInterveiw";
 import { AiFillDelete, AiFillEdit } from "react-icons/ai";
 import { IoIosPeople } from "react-icons/io";
-const Upcoming = ({ interviews }) => {
+import Create from "./Create";
+const Upcoming = ({ interviews, update, setUpdate, participants }) => {
   const [showParticpant, setShowParticipant] = useState(false);
-  const [participants, setParticipants] = useState([]);
+  const [interviewParticipants, setInterviewParticipants] = useState([]);
+
+  const handleDelete = (id) => {
+    var requestOptions = {
+      method: "DELETE",
+      redirect: "follow",
+    };
+
+    fetch(
+      `${process.env.REACT_APP_BACKEND}/api/interview/delete/${id}`,
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        //console.log(result);
+        if (result.success) {
+          setUpdate((update) => update + 1);
+        }
+      })
+      .catch((error) => console.log("error", error));
+  };
 
   const Partcipants = () => {
     return (
       <div
-        className={`bg-white text-gray-900 rounded-lg fixed top-0 left-0 right-0 z-50 m-auto text-center max-w-2xl  h-36 border  w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 ${
+        className={`shadow-2xl bg-gray-50 text-gray-900 rounded-lg fixed top-0 left-0 right-0 z-50 m-auto text-center max-w-2xl  h-36 border  w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 ${
           !showParticpant && "hidden"
         }`}
       >
-        <p className="text-xl font-bold text-center">Particpants</p>
+        <p className="text-xl font-bold text-center">Participants</p>
 
-        {participants?.map((participant) => {
+        {interviewParticipants?.map((participant) => {
           return <li className="text-left">{participant.name}</li>;
         })}
-        <button onClick={() => setShowParticipant(false)}>Close</button>
+        <button
+          className="bg-red-600 text-white rounded p-1"
+          onClick={() => setShowParticipant(false)}
+        >
+          Close
+        </button>
       </div>
     );
   };
+
   return (
     <>
       <div>
@@ -29,10 +56,9 @@ const Upcoming = ({ interviews }) => {
           <h1 className="text-2xl font-bold">Upcoming Interviews</h1>
 
           <div className="max-w-4xl m-auto">
-            {!interviews && <Spinner />}
             <div className="relative overflow-x-auto">
               <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400 border">
-                <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">
+                <thead className="text-sm text-gray-700 uppercase bg-gray-50 ">
                   <tr>
                     <th scope="col" className="px-6 py-3">
                       Title
@@ -48,18 +74,23 @@ const Upcoming = ({ interviews }) => {
                     </th>
                   </tr>
                 </thead>
+                {interviews.length === 0 && "No Upcomign Interviews"}
                 <tbody>
                   {interviews?.map((interview) => {
                     return (
-                      <tr className="bg-white border-b ">
+                      <tr className="bg-white border-b " key={interview._id}>
                         <th
                           scope="row"
                           className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap "
                         >
                           {interview.title}
                         </th>
-                        <td className="px-6 py-4">{interview.startTime}</td>
-                        <td className="px-6 py-4">{interview.endTime}</td>
+                        <td className="px-6 py-4 text-gray-600">
+                          {interview.startTime}
+                        </td>
+                        <td className="px-6 py-4 text-gray-600">
+                          {interview.endTime}
+                        </td>
                         <td className="px-6 py-4 flex gap-4">
                           <Partcipants />
 
@@ -67,15 +98,19 @@ const Upcoming = ({ interviews }) => {
                             className="text-xs block"
                             onClick={() => {
                               setShowParticipant(true);
-                              setParticipants(interview.participants);
+                              setInterviewParticipants(interview.participants);
                             }}
                           >
                             <IoIosPeople className="text-2xl text-yellow-400" />
                           </button>
-                          <button>
-                            <AiFillEdit className="text-2xl text-blue-600" />
-                          </button>
-                          <button>
+                          <UpdateInterview
+                            participants={participants}
+                            interview={interview}
+                            updateInterview={true}
+                            update={update}
+                            setUpdate={setUpdate}
+                          />
+                          <button onClick={() => handleDelete(interview._id)}>
                             <AiFillDelete className="text-2xl text-red-600" />
                           </button>
                         </td>

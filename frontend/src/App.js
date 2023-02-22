@@ -7,12 +7,13 @@ import Update from "./Pages/Update";
 function App() {
   const [participants, setParticpants] = useState([]);
   const [interviews, setInterviews] = useState([]);
+  const [update, setUpdate] = useState(1);
   const fetchParticpants = () => {
     var requestOptions = {
       method: "GET",
       redirect: "follow",
     };
-    console.log("here");
+    //console.log("here");
     fetch(
       `${process.env.REACT_APP_BACKEND}/api/particpants/all`,
       requestOptions
@@ -37,20 +38,43 @@ function App() {
   useEffect(() => {
     fetchParticpants();
     fetchInterviews();
-  }, []);
+  }, [update]);
   return (
     <>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Layout />}>
-            <Route index element={<Home interviews={interviews} />} />
+            <Route
+              index
+              element={
+                <Home
+                  interviews={interviews}
+                  setUpdate={setUpdate}
+                  update={update}
+                  participants={participants}
+                />
+              }
+            />
             <Route
               path="create"
-              element={<Create participants={participants} />}
+              element={
+                <Create
+                  setUpdate={setUpdate}
+                  update={update}
+                  participants={participants}
+                />
+              }
             />
             <Route
               path="update"
-              element={<Update participants={participants} />}
+              element={
+                <Update
+                  interviews={interviews}
+                  setUpdate={setUpdate}
+                  update={update}
+                  participants={participants}
+                />
+              }
             />
           </Route>
         </Routes>

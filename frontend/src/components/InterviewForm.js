@@ -1,11 +1,28 @@
 import { useState } from "react";
 import Participants from "./Partcipants";
 import Spinner from "./Spinner";
-const InterviewForm = ({ className, participants }) => {
-  const [addedParticipants, setAddedParticipants] = useState([]);
-  const [startDateTime, setStartDateTime] = useState(null);
-  const [endDateTime, setEndDateTime] = useState(null);
-  const [title, setTitle] = useState("");
+const InterviewForm = ({
+  className,
+  participants,
+  update,
+  setUpdate,
+  interview,
+  updateInterview,
+}) => {
+  let particpantToUpdate = [];
+  if (interview) {
+    for (var i = 0; i < interview.participants.length; i++) {
+      particpantToUpdate.push(interview.participants[i]._id);
+    }
+  }
+  const [addedParticipants, setAddedParticipants] = useState(
+    particpantToUpdate || []
+  );
+  const [startDateTime, setStartDateTime] = useState(
+    interview?.startTime || null
+  );
+  const [endDateTime, setEndDateTime] = useState(interview?.endTime || null);
+  const [title, setTitle] = useState(interview?.title || "");
   const [link, setLink] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState({ type: null, message: null });
@@ -18,7 +35,7 @@ const InterviewForm = ({ className, participants }) => {
     return diffInMinutes;
   };
 
-  const handleNewInterview = () => {
+  const handleChangeInterview = (iid) => {
     setResult({});
     setLoading(true);
     var myHeaders = new Headers();
@@ -33,24 +50,32 @@ const InterviewForm = ({ className, participants }) => {
     });
 
     var requestOptions = {
-      method: "POST",
+      method: updateInterview ? "PUT" : "POST",
       headers: myHeaders,
       body: raw,
       redirect: "follow",
     };
-
-    fetch(`${process.env.REACT_APP_BACKEND}/api/interview/new`, requestOptions)
+    const url = `${process.env.REACT_APP_BACKEND}/api/interview/${
+      updateInterview ? `update/${iid}` : "new"
+    }`;
+    fetch(url, requestOptions)
       .then((response) => response.json())
       .then((result) => {
         setLoading(false);
         if (result?.success && result?.message === "CREATED") {
           setResult({ type: "success", message: "Interview Created" });
+          setUpdate((update) => update + 1);
+          return;
+        } else if (result?.success && result?.message === "UPDATED") {
+          setResult({ type: "success", message: "Interview Updated" });
+          setUpdate((update) => update + 1);
         } else if (!result?.success && result?.message === "CLASH") {
           let message = "";
-          for (var i = 0; i < result?.unavalibleParticipants.length; i++) {
-            message += result?.unavalibleParticipants[i]?.name + ", ";
+          for (var i = 0; i < result?.unAvalibleParticipants.length; i++) {
+            message += `${result?.unAvalibleParticipants[i]?.name} - (${result?.unAvalibleParticipants[i]?.startTime}-${result?.unAvalibleParticipants[i]?.endTime})   `;
           }
-          setResult({ type: "error", message: message + " are not availible" });
+          setResult({ type: "error", message: message + " not availible" });
+          return;
         } else if (
           !result?.success &&
           result?.message === "BASIC_VALIDATION_FAILED"
@@ -60,10 +85,11 @@ const InterviewForm = ({ className, participants }) => {
             message:
               "Please put a valid time and the number of participants can not be less than 2.",
           });
+          return;
         }
       })
       .catch((error) => {
-        setLoading(true);
+        setLoading(false);
         console.log("error", error);
       });
   };
@@ -192,11 +218,11 @@ const InterviewForm = ({ className, participants }) => {
       </div>
       <div className="mt-6 flex gap-2">
         <button
-          onClick={() => handleNewInterview()}
+          onClick={() => handleChangeInterview(interview._id || null)}
           type="button"
           className="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
-          {loading ? <Spinner /> : "Create"}
+          {loading ? <Spinner /> : updateInterview ? "Update" : "Create"}
         </button>
         <button
           type="button"

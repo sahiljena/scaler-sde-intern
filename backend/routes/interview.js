@@ -38,7 +38,12 @@ router.post("/new", async (req, res) => {
               if (
                 interviews[i].participants.includes(req.body.participants[j])
               ) {
-                unavalibleParticipants.push(req.body.participants[j]);
+                let tp = {
+                  uid: req.body.participants[j],
+                  startTime: interviews[i].startTime,
+                  endTime: interviews[i].endTime,
+                };
+                unavalibleParticipants.push(tp);
               }
             }
           }
@@ -68,15 +73,33 @@ router.post("/new", async (req, res) => {
                 .json({ success: false, message: "ERR_CREATING_INTERVIEW" });
             }
           } else {
-            console.log(unavalibleParticipants);
-            const unAvlParticipants = await Participant.find({
-              _id: { $in: unavalibleParticipants },
+            // console.log(unavalibleParticipants);
+            const unAvlPartArray = [];
+            for (var i = 0; i < unavalibleParticipants.length; i++) {
+              unAvlPartArray.push(unavalibleParticipants[i].uid);
+            }
+            const unAvlParticipantsDetails = await Participant.find({
+              _id: { $in: unAvlPartArray },
             });
-            console.log(unAvlParticipants);
+            // console.log(unAvlParticipantsDetails);
+            for (var i = 0; i < unAvlParticipantsDetails.length; i++) {
+              for (var j = 0; j < unavalibleParticipants.length; j++) {
+                if (
+                  unAvlParticipantsDetails[i]._id.toString() ===
+                  unavalibleParticipants[j].uid
+                ) {
+                  unavalibleParticipants[j].name =
+                    unAvlParticipantsDetails[i].name;
+                  unavalibleParticipants[j].email =
+                    unAvlParticipantsDetails[i].email;
+                }
+              }
+            }
+            console.log(unavalibleParticipants);
             res.status(400).json({
               success: false,
               message: "CLASH",
-              unavalibleParticipants: unAvlParticipants,
+              unAvalibleParticipants: unavalibleParticipants,
             });
           }
         }
@@ -107,6 +130,123 @@ router.get("/all", async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+router.delete("/delete/:id", async (req, res) => {
+  console.log(req.params.id);
+  const deletedInterveiw = await Interview.findOneAndDelete(
+    { _id: req.params.id },
+    function (err) {
+      if (err) {
+        console.log("Error");
+        res.status(400).json({ success: false, message: "NOT_DELETED" });
+      } else {
+        res.status(200).json({ success: true, message: "DELETED" });
+      }
+    }
+  )
+    .clone()
+    .catch(function (err) {
+      console.log(err);
+    });
+});
+
+router.put("/update/:id", async (req, res) => {
+  const iid = req.params.id;
+
+  if (
+    validateInterview(
+      req.body.startTime,
+      req.body.endTime,
+      req.body.participants
+    )
+  ) {
+    const intersetingInterviews = await Interview.find(
+      {
+        $or: [
+          { startTime: { $gte: req.body.startTime, $lt: req.body.endTime } },
+          { endTime: { $gt: req.body.startTime, $lte: req.body.endTime } },
+        ],
+      },
+      async (err, interviews) => {
+        if (err) {
+          res.status(400).json({ message: err });
+        } else {
+          console.log(interviews);
+          if (
+            (interviews.length === 1 && interviews[0]._id == iid) ||
+            interviews.length === 0
+          ) {
+            const interview = Interview.findOneAndUpdate(
+              { _id: iid },
+              req.body,
+              function (err, doc) {
+                if (err) return res.send(500, { error: err });
+                return res
+                  .status(202)
+                  .json({ success: true, message: "UPDATED" });
+              }
+            );
+          } else {
+            let unavalibleParticipants = [];
+            for (var i = 0; i < interviews.length; i++) {
+              for (var j = 0; j < req.body.participants.length; j++) {
+                if (
+                  interviews[i].participants.includes(
+                    req.body.participants[j]
+                  ) &&
+                  interviews[i]._id != iid
+                ) {
+                  let tp = {
+                    uid: req.body.participants[j],
+                    startTime: interviews[i].startTime,
+                    endTime: interviews[i].endTime,
+                  };
+                  unavalibleParticipants.push(tp);
+                }
+              }
+            }
+            const unAvlPartArray = [];
+            for (var i = 0; i < unavalibleParticipants.length; i++) {
+              unAvlPartArray.push(unavalibleParticipants[i].uid);
+            }
+            const unAvlParticipantsDetails = await Participant.find({
+              _id: { $in: unAvlPartArray },
+            });
+            // console.log(unAvlParticipantsDetails);
+            for (var i = 0; i < unAvlParticipantsDetails.length; i++) {
+              for (var j = 0; j < unavalibleParticipants.length; j++) {
+                if (
+                  unAvlParticipantsDetails[i]._id.toString() ===
+                  unavalibleParticipants[j].uid
+                ) {
+                  unavalibleParticipants[j].name =
+                    unAvlParticipantsDetails[i].name;
+                  unavalibleParticipants[j].email =
+                    unAvlParticipantsDetails[i].email;
+                }
+              }
+            }
+            console.log(unavalibleParticipants);
+            res.status(400).json({
+              success: false,
+              message: "CLASH",
+              unAvalibleParticipants: unavalibleParticipants,
+            });
+          }
+        }
+      }
+    )
+      .clone()
+      .catch(function (err) {
+        console.log(err);
+      });
+  } else {
+    res.status(400).json({
+      success: false,
+      message: "BASIC_VALIDATION_FAILED",
+    });
   }
 });
 module.exports = router;
