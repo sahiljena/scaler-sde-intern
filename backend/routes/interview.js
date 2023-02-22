@@ -64,7 +64,7 @@ router.post("/new", async (req, res) => {
         },
         async (err, interviews) => {
           if (err) {
-            res.status(400).json({ message: err });
+            res.status(400).json({ success: false, message: err });
           } else {
             let unavalibleParticipants = [];
             for (var i = 0; i < interviews.length; i++) {

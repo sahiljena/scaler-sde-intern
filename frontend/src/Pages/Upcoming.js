@@ -99,10 +99,12 @@ const Upcoming = ({
                           {interview.title}
                         </th>
                         <td className="px-6 py-4 text-gray-600">
-                          {interview.startTime}
+                          {interview?.startTime.split("T")[0]} -{" "}
+                          {interview?.startTime.split("T")[1]}
                         </td>
                         <td className="px-6 py-4 text-gray-600">
-                          {interview.endTime}
+                          {interview?.endTime.split("T")[0]} -{" "}
+                          {interview?.endTime.split("T")[1]}
                         </td>
                         <td className="px-6 py-4 flex gap-4">
                           <Partcipants />
