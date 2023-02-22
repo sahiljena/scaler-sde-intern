@@ -3,11 +3,19 @@ import UpdateInterview from "../components/UpdateInterveiw";
 import { AiFillDelete, AiFillEdit } from "react-icons/ai";
 import { IoIosPeople } from "react-icons/io";
 import Create from "./Create";
-const Upcoming = ({ interviews, update, setUpdate, participants }) => {
+const Upcoming = ({
+  interviews,
+  update,
+  setUpdate,
+  participants,
+  loading,
+  setLoading,
+}) => {
   const [showParticpant, setShowParticipant] = useState(false);
   const [interviewParticipants, setInterviewParticipants] = useState([]);
 
   const handleDelete = (id) => {
+    setLoading(true);
     var requestOptions = {
       method: "DELETE",
       redirect: "follow",
@@ -23,8 +31,12 @@ const Upcoming = ({ interviews, update, setUpdate, participants }) => {
         if (result.success) {
           setUpdate((update) => update + 1);
         }
+        setLoading(false);
       })
-      .catch((error) => console.log("error", error));
+      .catch((error) => {
+        console.log("error", error);
+        setLoading(false);
+      });
   };
 
   const Partcipants = () => {
@@ -76,6 +88,7 @@ const Upcoming = ({ interviews, update, setUpdate, participants }) => {
                 </thead>
                 {interviews.length === 0 && "No Upcomign Interviews"}
                 <tbody>
+                  {loading && <>loading...</>}
                   {interviews?.map((interview) => {
                     return (
                       <tr className="bg-white border-b " key={interview._id}>

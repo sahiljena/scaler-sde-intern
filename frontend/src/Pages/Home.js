@@ -1,5 +1,12 @@
 import Upcoming from "./Upcoming";
-const Home = ({ interviews, update, setUpdate, participants }) => {
+const Home = ({
+  interviews,
+  update,
+  setUpdate,
+  participants,
+  loading,
+  setLoading,
+}) => {
   return (
     <>
       <Upcoming
@@ -7,6 +14,8 @@ const Home = ({ interviews, update, setUpdate, participants }) => {
         setUpdate={setUpdate}
         update={update}
         participants={participants}
+        loading={loading}
+        setLoading={setLoading}
       />
     </>
   );

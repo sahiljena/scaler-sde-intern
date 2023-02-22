@@ -8,6 +8,7 @@ function App() {
   const [participants, setParticpants] = useState([]);
   const [interviews, setInterviews] = useState([]);
   const [update, setUpdate] = useState(1);
+  const [loading, setLoading] = useState(false);
   const fetchParticpants = () => {
     var requestOptions = {
       method: "GET",
@@ -19,11 +20,16 @@ function App() {
       requestOptions
     )
       .then((response) => response.json())
-      .then((result) => setParticpants(result))
-      .catch((error) => console.log("error", error));
+      .then((result) => {
+        setParticpants(result);
+      })
+      .catch((error) => {
+        console.log("error", error);
+      });
   };
 
   const fetchInterviews = () => {
+    setLoading(true);
     var requestOptions = {
       method: "GET",
       redirect: "follow",
@@ -31,8 +37,14 @@ function App() {
 
     fetch(`${process.env.REACT_APP_BACKEND}/api/interview/all`, requestOptions)
       .then((response) => response.json())
-      .then((result) => setInterviews(result?.interviews))
-      .catch((error) => console.log("error", error));
+      .then((result) => {
+        setLoading(false);
+        setInterviews(result?.interviews);
+      })
+      .catch((error) => {
+        setLoading(false);
+        console.log("error", error);
+      });
   };
 
   useEffect(() => {
@@ -52,6 +64,8 @@ function App() {
                   setUpdate={setUpdate}
                   update={update}
                   participants={participants}
+                  loading={loading}
+                  setLoading={setLoading}
                 />
               }
             />
