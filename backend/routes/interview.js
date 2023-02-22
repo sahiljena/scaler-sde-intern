@@ -2,6 +2,40 @@ const express = require("express");
 const router = express.Router();
 const Participant = require("../models/Participant");
 const Interview = require("../models/Interview");
+const nodemailer = require("nodemailer");
+
+const smtpTransport = nodemailer.createTransport({
+  service: "Gmail",
+  auth: {
+    user: "find.roomy.otp@gmail.com",
+    pass: "wlvfoikfgpcjanah",
+  },
+  tls: {
+    rejectUnauthorized: false,
+  },
+});
+
+const sendMassMail = async (subject, context, participants) => {
+  const sendMailsTo = await Participant.find({
+    _id: { $in: participants },
+  });
+  console.log(sendMailsTo);
+  for (var i = 0; i < sendMailsTo.length; i++) {
+    const mailOptions = {
+      from: "find.roomy.otp@gmail.com",
+      to: sendMailsTo[i].email,
+      subject: subject,
+      text: context,
+    };
+    smtpTransport.sendMail(mailOptions, function (error, response) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log("mail sent");
+      }
+    });
+  }
+};
 
 function validateInterview(start, end, participants) {
   const startDate = new Date(start);
@@ -55,10 +89,19 @@ router.post("/new", async (req, res) => {
               link: req.body.link,
               participants: req.body.participants,
             });
+
             try {
               interview
                 .save()
                 .then(() => {
+                  sendMassMail(
+                    "Interview Scheduled",
+                    "An Interview has been Scheduled for you from " +
+                      req.body.startTime +
+                      " to " +
+                      req.body.endTime,
+                    req.body.participants
+                  );
                   res.status(201).json({
                     success: true,
                     message: "CREATED",

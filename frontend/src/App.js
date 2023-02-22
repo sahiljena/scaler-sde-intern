@@ -9,6 +9,11 @@ function App() {
   const [interviews, setInterviews] = useState([]);
   const [update, setUpdate] = useState(1);
   const [loading, setLoading] = useState(false);
+
+  const sortByStartTime = (arr) => {
+    arr.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+    return arr;
+  };
   const fetchParticpants = () => {
     var requestOptions = {
       method: "GET",
@@ -39,7 +44,7 @@ function App() {
       .then((response) => response.json())
       .then((result) => {
         setLoading(false);
-        setInterviews(result?.interviews);
+        setInterviews(sortByStartTime(result?.interviews));
       })
       .catch((error) => {
         setLoading(false);
