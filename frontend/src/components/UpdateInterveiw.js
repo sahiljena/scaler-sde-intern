@@ -8,7 +8,7 @@ const UpdateInterview = ({
   update,
   setUpdate,
 }) => {
-  const [collapse, setCollapse] = useState(false);
+  const [collapse, setCollapse] = useState(false); // update interview modal handle
 
   return (
     <>

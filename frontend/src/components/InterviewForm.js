@@ -28,6 +28,7 @@ const InterviewForm = ({
   const [result, setResult] = useState({ type: null, message: null });
 
   const getTimeDifference = (start, end) => {
+    // get startTime and endTime difference in minutes
     const startDate = new Date(start);
     const endDate = new Date(end);
     const diff = endDate.getTime() - startDate.getTime();
@@ -36,8 +37,11 @@ const InterviewForm = ({
   };
 
   const handleChangeInterview = (iid) => {
+    // handle new interview and interview updation
     if (getTimeDifference(startDateTime, endDateTime) > 360) {
+      // check if interviews are longer than 6 hours
       setResult({
+        // setup error messgae
         type: "error",
         message: "Interview Duration is greater than 6 hours",
       });
@@ -46,13 +50,14 @@ const InterviewForm = ({
     let todayDateTime = new Date();
     let startDateTimeTc = new Date(startDateTime);
     if (startDateTimeTc < todayDateTime) {
+      // check if start time is not older than today
       setResult({
         type: "error",
         message: "You can not schedule interviews in the past.",
       });
       return;
     }
-    setLoading(true);
+    setLoading(true); // set laoding true
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
@@ -77,24 +82,29 @@ const InterviewForm = ({
       .then((result) => {
         setLoading(false);
         if (result?.success && result?.message === "CREATED") {
+          // if interview is created
           setResult({ type: "success", message: "Interview Created" });
           setUpdate((update) => update + 1);
           return;
         } else if (result?.success && result?.message === "UPDATED") {
+          // if interview is updated
           setResult({ type: "success", message: "Interview Updated" });
           setUpdate((update) => update + 1);
         } else if (!result?.success && result?.message === "CLASH") {
-          let message = "";
-          for (var i = 0; i < result?.unAvalibleParticipants.length; i++) {
-            message += `${result?.unAvalibleParticipants[i]?.name} - (${result?.unAvalibleParticipants[i]?.startTime}-${result?.unAvalibleParticipants[i]?.endTime})   `;
-          }
+          // if there are un-avl participants
+          //let message = "";
+          // for (var i = 0; i < result?.unAvalibleParticipants.length; i++) {
+          //   message += `${result?.unAvalibleParticipants[i]?.name} - (${result?.unAvalibleParticipants[i]?.startTime}-${result?.unAvalibleParticipants[i]?.endTime})   `;
+          // }
           setResult({
+            // set up error message
             type: "error",
             message: "Not Available",
             unAvlParticipants: result?.unAvalibleParticipants,
           });
           return;
         } else if (
+          // if participants are less than 2
           !result?.success &&
           result?.message === "LESS_PARTICIPANTS"
         ) {
@@ -104,6 +114,7 @@ const InterviewForm = ({
           });
           return;
         } else if (!result?.success && result?.message === "DATE_ERROR") {
+          // if date validation fails
           setResult({
             type: "error",
             message: "Enter Correct Date Time",

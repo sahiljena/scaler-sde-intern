@@ -3,7 +3,7 @@ import { useState } from "react";
 import { MdUpcoming, MdClose } from "react-icons/md";
 import { BsCalendarPlusFill, BsPencilSquare } from "react-icons/bs";
 const Navbar = () => {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(true); // to manage side drawer
   return (
     <>
       <aside

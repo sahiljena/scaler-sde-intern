@@ -6,6 +6,7 @@ const Participants = ({
   addedParticipants,
 }) => {
   const handleAddParticpant = (key) => {
+    // handle click on add participant
     const index = addedParticipants.indexOf(key);
     if (index === -1) {
       setAddedParticipants([...addedParticipants, key]);

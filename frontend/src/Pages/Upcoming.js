@@ -15,6 +15,7 @@ const Upcoming = ({
   const [interviewParticipants, setInterviewParticipants] = useState([]);
 
   const handleDelete = (id) => {
+    // handle function to delete an interview
     setLoading(true);
     var requestOptions = {
       method: "DELETE",
@@ -40,6 +41,7 @@ const Upcoming = ({
   };
 
   const Partcipants = () => {
+    // component to show particpants
     return (
       <div
         className={`shadow-2xl bg-gray-50 text-gray-900 rounded-lg fixed top-0 left-0 right-0 z-50 m-auto text-center max-w-2xl  h-8/12  mt-10 mb-10 border  w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 ${

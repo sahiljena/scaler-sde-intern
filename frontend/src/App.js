@@ -5,16 +5,18 @@ import Create from "./Pages/Create";
 import Home from "./Pages/Home";
 import Update from "./Pages/Update";
 function App() {
-  const [participants, setParticpants] = useState([]);
-  const [interviews, setInterviews] = useState([]);
-  const [update, setUpdate] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const [participants, setParticpants] = useState([]); // state to store all participants
+  const [interviews, setInterviews] = useState([]); // state to store all interviews
+  const [update, setUpdate] = useState(1); // state to setup updates
+  const [loading, setLoading] = useState(false); // state to store loading information
 
   const sortByStartTime = (arr) => {
-    arr.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
-    return arr;
+    // sorting function to sort interviews by date
+    arr.sort((a, b) => new Date(a.startTime) - new Date(b.startTime)); //
+    return arr; // return sorted array
   };
   const fetchParticpants = () => {
+    // fetch all participants
     var requestOptions = {
       method: "GET",
       redirect: "follow",
@@ -34,6 +36,7 @@ function App() {
   };
 
   const fetchInterviews = () => {
+    // fetch all interviews
     setLoading(true);
     var requestOptions = {
       method: "GET",
@@ -55,7 +58,7 @@ function App() {
   useEffect(() => {
     fetchParticpants();
     fetchInterviews();
-  }, [update]);
+  }, [update]); // check for update
   return (
     <>
       <BrowserRouter>
