@@ -61,6 +61,28 @@ node index
     └── routes
         ├── interview.js             <- event handler for  interviews
         └── particpants.js            <- event handler for  Participants
+        
+### Database Schemas
+
+#### Interview
+
+| Field Name   | Data Type | Required | Description                                   |
+| ------------ | --------- | -------- | --------------------------------------------- |
+| `title`      | String    | Yes      | The title of the Interview.                       |
+| `startTime`  | String    | Yes      | The start time of the Interview.                  |
+| `endTime`    | String    | Yes      | The end time of the Interview.                    |
+| `participants` | Array    | Yes      | The list of participants attending the Interview (mongoIds). |
+
+
+### Participant
+| Field Name | Data Type | Required | Unique | Description                              |
+| ---------- | --------- | -------- | ------ | ---------------------------------------- |
+| `name`     | String    | Yes      | No     | The name of the user.                    |
+| `email`    | String    | Yes      | Yes    | The email address of the user.           |
+
+
+
+
 
 ### Sample cURL Requests
 
