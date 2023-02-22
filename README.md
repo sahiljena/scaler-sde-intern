@@ -94,6 +94,14 @@ node index
 curl --location --request GET 'https://scaler-sde-intern-production.up.railway.app/api/particpants/all' 
 ```
 
+#### <li>New User</li>
+``` 
+curl --location --request POST 'https://scaler-sde-intern-production.up.railway.app/api/particpants/new' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'name=Raj' \
+--data-urlencode 'email=rr@rr.com'
+```
+
 #### <li> All Interviews</li>
 ``` 
 curl --location --request GET 'https://scaler-sde-intern-production.up.railway.app/api/interview/all'
