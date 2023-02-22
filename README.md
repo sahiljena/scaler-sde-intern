@@ -1,6 +1,9 @@
 # Interview Scheduler
 
 This app allows admins to create interviews by selecting participants, interview start time, and end time.
+- Frontend - [scaler-sahil-jena-072.netlify.app](https://scaler-sahil-jena-072.netlify.app/)
+- Backend - https://scaler-sde-intern-production.up.railway.app/
+
 
 ## 🛠️ Tech Stack
 - React.js for Frontend
@@ -132,7 +135,7 @@ curl 'https://scaler-sde-intern-production.up.railway.app/api/interview/update/6
 
 #### <li>Delete Interview</li>
 ``` 
-curl --location --request DELETE 'http://localhost:5000/api/interview/delete/63f576a17f4a356e24f9f3b7'
+curl --location --request DELETE 'https://scaler-sde-intern-production.up.railway.app/api/interview/delete/63f576a17f4a356e24f9f3b7'
 ```
 
 # Working
