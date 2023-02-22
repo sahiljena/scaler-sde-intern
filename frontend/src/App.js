@@ -6,6 +6,7 @@ import Home from "./Pages/Home";
 import Update from "./Pages/Update";
 function App() {
   const [participants, setParticpants] = useState([]);
+  const [interviews, setInterviews] = useState([]);
   const fetchParticpants = () => {
     var requestOptions = {
       method: "GET",
@@ -20,15 +21,29 @@ function App() {
       .then((result) => setParticpants(result))
       .catch((error) => console.log("error", error));
   };
+
+  const fetchInterviews = () => {
+    var requestOptions = {
+      method: "GET",
+      redirect: "follow",
+    };
+
+    fetch(`${process.env.REACT_APP_BACKEND}/api/interview/all`, requestOptions)
+      .then((response) => response.json())
+      .then((result) => setInterviews(result?.interviews))
+      .catch((error) => console.log("error", error));
+  };
+
   useEffect(() => {
     fetchParticpants();
+    fetchInterviews();
   }, []);
   return (
     <>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Layout />}>
-            <Route index element={<Home />} />
+            <Route index element={<Home interviews={interviews} />} />
             <Route
               path="create"
               element={<Create participants={participants} />}

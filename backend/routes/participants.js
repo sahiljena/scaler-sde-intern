@@ -5,7 +5,7 @@ const Participant = require("../models/Participant");
 router.get("/all", async (req, res) => {
   try {
     const allParticpants = await Participant.find();
-    console.log(allParticpants);
+    //console.log(allParticpants);
     res.json(allParticpants);
   } catch (error) {
     console.log(error);

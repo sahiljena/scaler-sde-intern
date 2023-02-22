@@ -1,8 +1,8 @@
 import Upcoming from "./Upcoming";
-const Home = () => {
+const Home = ({ interviews }) => {
   return (
     <>
-      This is home page <Upcoming />
+      This is home page <Upcoming interviews={interviews} />
     </>
   );
 };

@@ -19,6 +19,7 @@ const InterviewForm = ({ className, participants }) => {
   };
 
   const handleNewInterview = () => {
+    setResult({});
     setLoading(true);
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
@@ -42,8 +43,24 @@ const InterviewForm = ({ className, participants }) => {
       .then((response) => response.json())
       .then((result) => {
         setLoading(false);
-        alert("Interview Created");
-        setResult({ type: "success", message: result.message });
+        if (result?.success && result?.message === "CREATED") {
+          setResult({ type: "success", message: "Interview Created" });
+        } else if (!result?.success && result?.message === "CLASH") {
+          let message = "";
+          for (var i = 0; i < result?.unavalibleParticipants.length; i++) {
+            message += result?.unavalibleParticipants[i]?.name + ", ";
+          }
+          setResult({ type: "error", message: message + " are not availible" });
+        } else if (
+          !result?.success &&
+          result?.message === "BASIC_VALIDATION_FAILED"
+        ) {
+          setResult({
+            type: "error",
+            message:
+              "Please put a valid time and the number of participants can not be less than 2.",
+          });
+        }
       })
       .catch((error) => {
         setLoading(true);
@@ -68,6 +85,20 @@ const InterviewForm = ({ className, participants }) => {
 
   return (
     <form className={className}>
+      {result && (
+        <>
+          {result.type === "success" && (
+            <div className="text-green-600 bg-green-300 p-2 rounded">
+              {result.message}
+            </div>
+          )}
+          {result.type === "error" && (
+            <div className="text-white bg-red-600 p-2 rounded-xl font-bold">
+              {result.message}
+            </div>
+          )}
+        </>
+      )}
       <div className="mb-6">
         <label
           htmlFor="text"
