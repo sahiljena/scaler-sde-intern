@@ -3,6 +3,7 @@ const router = express.Router();
 const Participant = require("../models/Participant");
 const Interview = require("../models/Interview");
 const nodemailer = require("nodemailer");
+const { rawListeners } = require("../models/Participant");
 
 const smtpTransport = nodemailer.createTransport({
   service: "Gmail",
@@ -37,10 +38,10 @@ const sendMassMail = async (subject, context, participants) => {
   }
 };
 
-function validateInterview(start, end, participants) {
+function validateTime(start, end) {
   const startDate = new Date(start);
   const endDate = new Date(end);
-  if (startDate.getTime() > endDate.getTime() || participants.length < 2) {
+  if (startDate.getTime() > endDate.getTime()) {
     return false;
   }
   return true;
@@ -48,114 +49,115 @@ function validateInterview(start, end, participants) {
 
 router.post("/new", async (req, res) => {
   // basic checks
-  if (
-    validateInterview(
-      req.body.startTime,
-      req.body.endTime,
-      req.body.participants
-    )
-  ) {
-    const intersetingInterviews = await Interview.find(
-      {
-        $or: [
-          { startTime: { $gte: req.body.startTime, $lt: req.body.endTime } },
-          { endTime: { $gt: req.body.startTime, $lte: req.body.endTime } },
-        ],
-      },
-      async (err, interviews) => {
-        if (err) {
-          res.status(400).json({ message: err });
-        } else {
-          let unavalibleParticipants = [];
-          for (var i = 0; i < interviews.length; i++) {
-            for (var j = 0; j < req.body.participants.length; j++) {
-              if (
-                interviews[i].participants.includes(req.body.participants[j])
-              ) {
-                let tp = {
-                  uid: req.body.participants[j],
-                  startTime: interviews[i].startTime,
-                  endTime: interviews[i].endTime,
-                };
-                unavalibleParticipants.push(tp);
-              }
-            }
-          }
-          if (unavalibleParticipants.length == 0) {
-            const interview = new Interview({
-              title: req.body.title,
-              startTime: req.body.startTime,
-              endTime: req.body.endTime,
-              link: req.body.link,
-              participants: req.body.participants,
-            });
-
-            try {
-              interview
-                .save()
-                .then(() => {
-                  sendMassMail(
-                    "Interview Scheduled",
-                    "An Interview has been Scheduled for you from " +
-                      req.body.startTime +
-                      " to " +
-                      req.body.endTime,
-                    req.body.participants
-                  );
-                  res.status(201).json({
-                    success: true,
-                    message: "CREATED",
-                  });
-                })
-                .catch((error) => {
-                  res.status(400).json({ message: error });
-                });
-            } catch (error) {
-              res
-                .status(400)
-                .json({ success: false, message: "ERR_CREATING_INTERVIEW" });
-            }
+  if (validateTime(req.body.startTime, req.body.endTime)) {
+    if (req.body.participants.length >= 2) {
+      const intersetingInterviews = await Interview.find(
+        {
+          $or: [
+            { startTime: { $gte: req.body.startTime, $lt: req.body.endTime } },
+            { endTime: { $gt: req.body.startTime, $lte: req.body.endTime } },
+          ],
+        },
+        async (err, interviews) => {
+          if (err) {
+            res.status(400).json({ message: err });
           } else {
-            // console.log(unavalibleParticipants);
-            const unAvlPartArray = [];
-            for (var i = 0; i < unavalibleParticipants.length; i++) {
-              unAvlPartArray.push(unavalibleParticipants[i].uid);
-            }
-            const unAvlParticipantsDetails = await Participant.find({
-              _id: { $in: unAvlPartArray },
-            });
-            // console.log(unAvlParticipantsDetails);
-            for (var i = 0; i < unAvlParticipantsDetails.length; i++) {
-              for (var j = 0; j < unavalibleParticipants.length; j++) {
+            let unavalibleParticipants = [];
+            for (var i = 0; i < interviews.length; i++) {
+              for (var j = 0; j < req.body.participants.length; j++) {
                 if (
-                  unAvlParticipantsDetails[i]._id.toString() ===
-                  unavalibleParticipants[j].uid
+                  interviews[i].participants.includes(req.body.participants[j])
                 ) {
-                  unavalibleParticipants[j].name =
-                    unAvlParticipantsDetails[i].name;
-                  unavalibleParticipants[j].email =
-                    unAvlParticipantsDetails[i].email;
+                  let tp = {
+                    uid: req.body.participants[j],
+                    startTime: interviews[i].startTime,
+                    endTime: interviews[i].endTime,
+                  };
+                  unavalibleParticipants.push(tp);
                 }
               }
             }
-            console.log(unavalibleParticipants);
-            res.status(400).json({
-              success: false,
-              message: "CLASH",
-              unAvalibleParticipants: unavalibleParticipants,
-            });
+            if (unavalibleParticipants.length == 0) {
+              const interview = new Interview({
+                title: req.body.title,
+                startTime: req.body.startTime,
+                endTime: req.body.endTime,
+                link: req.body.link,
+                participants: req.body.participants,
+              });
+
+              try {
+                interview
+                  .save()
+                  .then(() => {
+                    sendMassMail(
+                      "Interview Scheduled",
+                      "An Interview has been Scheduled for you from " +
+                        req.body.startTime +
+                        " to " +
+                        req.body.endTime,
+                      req.body.participants
+                    );
+                    res.status(201).json({
+                      success: true,
+                      message: "CREATED",
+                    });
+                  })
+                  .catch((error) => {
+                    res.status(400).json({ message: error });
+                  });
+              } catch (error) {
+                res
+                  .status(400)
+                  .json({ success: false, message: "ERR_CREATING_INTERVIEW" });
+              }
+            } else {
+              // console.log(unavalibleParticipants);
+              const unAvlPartArray = [];
+              for (var i = 0; i < unavalibleParticipants.length; i++) {
+                unAvlPartArray.push(unavalibleParticipants[i].uid);
+              }
+              const unAvlParticipantsDetails = await Participant.find({
+                _id: { $in: unAvlPartArray },
+              });
+              // console.log(unAvlParticipantsDetails);
+              for (var i = 0; i < unAvlParticipantsDetails.length; i++) {
+                for (var j = 0; j < unavalibleParticipants.length; j++) {
+                  if (
+                    unAvlParticipantsDetails[i]._id.toString() ===
+                    unavalibleParticipants[j].uid
+                  ) {
+                    unavalibleParticipants[j].name =
+                      unAvlParticipantsDetails[i].name;
+                    unavalibleParticipants[j].email =
+                      unAvlParticipantsDetails[i].email;
+                  }
+                }
+              }
+              console.log(unavalibleParticipants);
+              res.status(400).json({
+                success: false,
+                message: "CLASH",
+                unAvalibleParticipants: unavalibleParticipants,
+              });
+            }
           }
         }
-      }
-    )
-      .clone()
-      .catch(function (err) {
-        console.log(err);
+      )
+        .clone()
+        .catch(function (err) {
+          console.log(err);
+        });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: "LESS_PARTICIPANTS",
       });
+    }
   } else {
     res.status(400).json({
       success: false,
-      message: "BASIC_VALIDATION_FAILED",
+      message: "DATE_ERROR",
     });
   }
 });
@@ -198,89 +200,24 @@ router.delete("/delete/:id", async (req, res) => {
 router.put("/update/:id", async (req, res) => {
   const iid = req.params.id;
 
-  if (
-    validateInterview(
-      req.body.startTime,
-      req.body.endTime,
-      req.body.participants
-    )
-  ) {
-    const intersetingInterviews = await Interview.find(
-      {
-        $or: [
-          { startTime: { $gte: req.body.startTime, $lt: req.body.endTime } },
-          { endTime: { $gt: req.body.startTime, $lte: req.body.endTime } },
-        ],
-      },
-      async (err, interviews) => {
-        if (err) {
-          res.status(400).json({ message: err });
-        } else {
-          console.log(interviews);
-          if (
-            (interviews.length === 1 && interviews[0]._id == iid) ||
-            interviews.length === 0
-          ) {
-            const interview = Interview.findOneAndUpdate(
-              { _id: iid },
-              req.body,
-              function (err, doc) {
-                if (err) return res.send(500, { error: err });
-                sendMassMail(
-                  "Interview Schedule Update",
-                  "An Interview Schedule has been updated for you from " +
-                    req.body.startTime +
-                    " to " +
-                    req.body.endTime,
-                  req.body.participants
-                );
-                return res
-                  .status(202)
-                  .json({ success: true, message: "UPDATED" });
-              }
-            );
+  if (validateTime(req.body.startTime, req.body.endTime)) {
+    if (req.body.participants.length >= 2) {
+      const intersetingInterviews = await Interview.find(
+        {
+          $or: [
+            { startTime: { $gte: req.body.startTime, $lt: req.body.endTime } },
+            { endTime: { $gt: req.body.startTime, $lte: req.body.endTime } },
+          ],
+        },
+        async (err, interviews) => {
+          if (err) {
+            res.status(400).json({ message: err });
           } else {
-            let unavalibleParticipants = [];
-            for (var i = 0; i < interviews.length; i++) {
-              for (var j = 0; j < req.body.participants.length; j++) {
-                if (
-                  interviews[i].participants.includes(
-                    req.body.participants[j]
-                  ) &&
-                  interviews[i]._id != iid
-                ) {
-                  let tp = {
-                    uid: req.body.participants[j],
-                    startTime: interviews[i].startTime,
-                    endTime: interviews[i].endTime,
-                  };
-                  unavalibleParticipants.push(tp);
-                }
-              }
-            }
-            const unAvlPartArray = [];
-            for (var i = 0; i < unavalibleParticipants.length; i++) {
-              unAvlPartArray.push(unavalibleParticipants[i].uid);
-            }
-            const unAvlParticipantsDetails = await Participant.find({
-              _id: { $in: unAvlPartArray },
-            });
-            // console.log(unAvlParticipantsDetails);
-            for (var i = 0; i < unAvlParticipantsDetails.length; i++) {
-              for (var j = 0; j < unavalibleParticipants.length; j++) {
-                if (
-                  unAvlParticipantsDetails[i]._id.toString() ===
-                  unavalibleParticipants[j].uid
-                ) {
-                  unavalibleParticipants[j].name =
-                    unAvlParticipantsDetails[i].name;
-                  unavalibleParticipants[j].email =
-                    unAvlParticipantsDetails[i].email;
-                }
-              }
-            }
-
-            if (unavalibleParticipants.length === 0) {
+            console.log(interviews);
+            if (
+              (interviews.length === 1 && interviews[0]._id == iid) ||
+              interviews.length === 0
+            ) {
               const interview = Interview.findOneAndUpdate(
                 { _id: iid },
                 req.body,
@@ -300,25 +237,91 @@ router.put("/update/:id", async (req, res) => {
                 }
               );
             } else {
-              console.log(unavalibleParticipants);
-              res.status(400).json({
-                success: false,
-                message: "CLASH",
-                unAvalibleParticipants: unavalibleParticipants,
+              let unavalibleParticipants = [];
+              for (var i = 0; i < interviews.length; i++) {
+                for (var j = 0; j < req.body.participants.length; j++) {
+                  if (
+                    interviews[i].participants.includes(
+                      req.body.participants[j]
+                    ) &&
+                    interviews[i]._id != iid
+                  ) {
+                    let tp = {
+                      uid: req.body.participants[j],
+                      startTime: interviews[i].startTime,
+                      endTime: interviews[i].endTime,
+                    };
+                    unavalibleParticipants.push(tp);
+                  }
+                }
+              }
+              const unAvlPartArray = [];
+              for (var i = 0; i < unavalibleParticipants.length; i++) {
+                unAvlPartArray.push(unavalibleParticipants[i].uid);
+              }
+              const unAvlParticipantsDetails = await Participant.find({
+                _id: { $in: unAvlPartArray },
               });
+              // console.log(unAvlParticipantsDetails);
+              for (var i = 0; i < unAvlParticipantsDetails.length; i++) {
+                for (var j = 0; j < unavalibleParticipants.length; j++) {
+                  if (
+                    unAvlParticipantsDetails[i]._id.toString() ===
+                    unavalibleParticipants[j].uid
+                  ) {
+                    unavalibleParticipants[j].name =
+                      unAvlParticipantsDetails[i].name;
+                    unavalibleParticipants[j].email =
+                      unAvlParticipantsDetails[i].email;
+                  }
+                }
+              }
+
+              if (unavalibleParticipants.length === 0) {
+                const interview = Interview.findOneAndUpdate(
+                  { _id: iid },
+                  req.body,
+                  function (err, doc) {
+                    if (err) return res.send(500, { error: err });
+                    sendMassMail(
+                      "Interview Schedule Update",
+                      "An Interview Schedule has been updated for you from " +
+                        req.body.startTime +
+                        " to " +
+                        req.body.endTime,
+                      req.body.participants
+                    );
+                    return res
+                      .status(202)
+                      .json({ success: true, message: "UPDATED" });
+                  }
+                );
+              } else {
+                console.log(unavalibleParticipants);
+                res.status(400).json({
+                  success: false,
+                  message: "CLASH",
+                  unAvalibleParticipants: unavalibleParticipants,
+                });
+              }
             }
           }
         }
-      }
-    )
-      .clone()
-      .catch(function (err) {
-        console.log(err);
+      )
+        .clone()
+        .catch(function (err) {
+          console.log(err);
+        });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: "LESS_PARTICIPANTS",
       });
+    }
   } else {
     res.status(400).json({
       success: false,
-      message: "BASIC_VALIDATION_FAILED",
+      message: "DATE_ERROR",
     });
   }
 });

@@ -23,7 +23,6 @@ const InterviewForm = ({
   );
   const [endDateTime, setEndDateTime] = useState(interview?.endTime || null);
   const [title, setTitle] = useState(interview?.title || "");
-  const [link, setLink] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState({ type: null, message: null });
 
@@ -36,7 +35,13 @@ const InterviewForm = ({
   };
 
   const handleChangeInterview = (iid) => {
-    setResult({});
+    if (getTimeDifference(startDateTime, endDateTime) > 360) {
+      setResult({
+        type: "error",
+        message: "Interview Duration is greater than 6 hours",
+      });
+      return;
+    }
     setLoading(true);
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
@@ -45,7 +50,6 @@ const InterviewForm = ({
       title: title,
       startTime: startDateTime,
       endTime: endDateTime,
-      link: link,
       participants: addedParticipants,
     });
 
@@ -82,12 +86,17 @@ const InterviewForm = ({
           return;
         } else if (
           !result?.success &&
-          result?.message === "BASIC_VALIDATION_FAILED"
+          result?.message === "LESS_PARTICIPANTS"
         ) {
           setResult({
             type: "error",
-            message:
-              "Please put a valid time and the number of participants can not be less than 2.",
+            message: "Number of participants can not be less than 2.",
+          });
+          return;
+        } else if (!result?.success && result?.message === "DATE_ERROR") {
+          setResult({
+            type: "error",
+            message: "Enter Correct Date Time",
           });
           return;
         }
@@ -180,32 +189,8 @@ const InterviewForm = ({
           </p>
         </div>
       )}
-      <div className="mb-6 mt-2">
-        <label
-          htmlFor="text"
-          className="block mb-2 text-md font-medium text-gray-900"
-        >
-          Link
-        </label>
-        <input
-          type="text"
-          id="interview-title"
-          className="bg-gray-50 border border-gray-400 text-gray-900 text-md rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
-          placeholder="Add a meeting link, any relevent link..."
-          onChange={(e) => setLink(e.target.value)}
-          value={link}
-          required
-        />
-      </div>
       <div className="mt-6">
-        <p className="text-md font-medium text-gray-900">Add Particpants</p>
-        {/* <input
-          type="search"
-          id="default-search"
-          className="block w-full p-2.5  text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 "
-          placeholder="Search by Name, Email"
-          required
-        /> */}
+        <p className="text-md font-medium text-gray-900">Add Participants</p>
         <Participants
           participants={participants}
           setAddedParticipants={setAddedParticipants}

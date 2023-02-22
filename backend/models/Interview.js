@@ -13,10 +13,6 @@ const dataSchema = new mongoose.Schema({
     required: true,
     type: String,
   },
-  link: {
-    required: false,
-    type: String,
-  },
   participants: {
     required: true,
     type: Array,
