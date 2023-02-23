@@ -96,7 +96,6 @@ router.post("/new", async (req, res) => {
                 title: req.body.title,
                 startTime: req.body.startTime,
                 endTime: req.body.endTime,
-                link: req.body.link,
                 participants: req.body.participants,
               });
 
@@ -206,11 +205,21 @@ router.delete("/delete/:id", async (req, res) => {
   const deletedInterveiw = await Interview.findOneAndDelete(
     // find the document(interveiw) to delete
     { _id: req.params.id },
-    function (err) {
+    function (err, interview) {
       if (err) {
         console.log("Error");
         res.status(400).json({ success: false, message: "NOT_DELETED" }); // return if deleted
       } else {
+        let toSendMailto = interview;
+        sendMassMail(
+          // send mass mail to all participants
+          "Interview Canceled",
+          "Interview Schedule has been canceld from " +
+            toSendMailto.startTime +
+            " to " +
+            toSendMailto.endTime,
+          toSendMailto.participants
+        );
         res.status(200).json({ success: true, message: "DELETED" }); // return if not deleted
       }
     }
