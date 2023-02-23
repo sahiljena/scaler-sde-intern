@@ -62,7 +62,6 @@ node index
     ├── app.js             <- Main Express app containing all the api routes
     ├── index.js           <- startup js file intializing the app and the port
     ├── package.json       <- Containing the required node modules start up scripts etc
-    ├── middlewares        <- Middleware to check if user is authenticated
     ├── models
     |   ├── Interview.js             <- database schema for interviews
     |   └── Particpant.js            <- database schema for participant
