@@ -4,7 +4,13 @@ This app allows admins to create interviews by selecting participants, interview
 - Frontend - [scaler-sahil-jena-072.netlify.app](https://scaler-sahil-jena-072.netlify.app/)
 - Backend - https://scaler-sde-intern-production.up.railway.app/
 
-
+### Requirements
+- ✅ Create an Interview and throw proper error if participants not avalible, or paritcipants are less than 2
+- ✅ See all the upcomming interveiws
+- ✅ Interview Update page
+#### Good To Have
+- ✅ Sends Mail in case of an Intreview creation or update.
+- ✅ Developed as a Single Page Application
 ## 🛠️ Tech Stack
 - React.js for Frontend
 - Node.js and Express.js for Backend
