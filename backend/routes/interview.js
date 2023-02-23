@@ -67,7 +67,7 @@ router.post("/new", async (req, res) => {
         {
           $or: [
             { startTime: { $gte: req.body.startTime, $lt: req.body.endTime } },
-            { endTime: { $gt: req.body.startTime, $lte: req.body.endTime } },
+            { endTime: { $gte: req.body.startTime, $lte: req.body.endTime } },
           ],
         },
         async (err, interviews) => {
@@ -233,7 +233,7 @@ router.put("/update/:id", async (req, res) => {
         {
           $or: [
             { startTime: { $gte: req.body.startTime, $lt: req.body.endTime } },
-            { endTime: { $gt: req.body.startTime, $lte: req.body.endTime } },
+            { endTime: { $gte: req.body.startTime, $lte: req.body.endTime } },
           ],
         },
         async (err, interviews) => {
