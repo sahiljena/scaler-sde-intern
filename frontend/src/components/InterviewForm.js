@@ -38,12 +38,30 @@ const InterviewForm = ({
 
   const handleChangeInterview = (iid) => {
     // handle new interview and interview updation
+    if (!title) {
+      setResult({
+        // setup error messgae
+        type: "error",
+        message: "Enter a valid title",
+      });
+      return;
+    }
+
     if (getTimeDifference(startDateTime, endDateTime) > 360) {
       // check if interviews are longer than 6 hours
       setResult({
         // setup error messgae
         type: "error",
         message: "Interview Duration is greater than 6 hours",
+      });
+      return;
+    }
+    if (getTimeDifference(startDateTime, endDateTime) == 0) {
+      // check if interviews are equal to 0 min
+      setResult({
+        // setup error messgae
+        type: "error",
+        message: "Interview Duration is 0",
       });
       return;
     }
